@@ -1,0 +1,79 @@
+This guide will help you understand how to run a ps1 on startup
+
+-Set the execution policy first
+# Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
+
+Press Win + R, type: taskschd.msc, press Enter
+OR search “Task Scheduler” from the Start menu
+
+In the right pane → Click Create Task…
+
+Name: Run PowerShell Script at Startup
+Check: Run with highest privileges
+Select: “Run whether user is logged on or not”
+Click New…
+Trigger Tab:
+Begin the task: At startup
+Enabled: Yes
+Actions Tab:
+Click New…
+Action: Start a program
+Program/script:
+powershell.exe
+
+Add arguments:
+-ExecutionPolicy Bypass -File "C:\Scripts\MyStartupScript.ps1"
+
+Bypass lets your unsigned script run without security warnings
+
+Conditions & Settings (Optional)
+In Conditions tab:
+Uncheck "Start only if the computer is on AC power" (for laptops)
+In Settings tab:
+Check: “Run task as soon as possible after a scheduled start is missed”
+Check: “Allow task to be run on demand”
+
+Click OK, then enter your Windows login password if prompted.
+To test it without rebooting:
+Right-click your task in Task Scheduler
+Click Run
+
+
+using powershell
+
+$taskName = "MyPowerShellStartupTask"
+$scriptPath = "C:\Scripts\MyStartupScript.ps1"
+$action = New-ScheduledTaskAction -Execute "powershell.exe" -Argument "-ExecutionPolicy Bypass -File `"$scriptPath`""
+$trigger = New-ScheduledTaskTrigger -AtStartup
+Register-ScheduledTask -TaskName $taskName -Action $action -Trigger $trigger -RunLevel Highest -User "SYSTEM"
+
+OR
+
+schtasks /Create /TN "MyPowerShellStartupTask" /TR "powershell.exe -ExecutionPolicy Bypass -File C:\Scripts\MyStartupScript.ps1" /SC ONSTART /RL HIGHEST /RU SYSTEM
+
+Verify if task exists
+
+Get-ScheduledTask -TaskName "MyPowerShellStartupTask"
+
+Run it manually
+Start-ScheduledTask -TaskName "MyPowerShellStartupTask"
+
+Delete the task
+Unregister-ScheduledTask -TaskName "MyPowerShellStartupTask" -Confirm:$false
+OR
+schtasks /Delete /TN "MyPowerShellStartupTask" /F
+
+List all sch tasks
+schtasks /Delete /TN "MyPowerShellStartupTask" /F
+OR
+schtasks
+
+
+Log output in your script like:
+
+"Ran at $(Get-Date)" | Out-File "C:\Scripts\startup-log.txt" -Append
+
+
+
+
+
