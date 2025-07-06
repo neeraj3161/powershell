@@ -56,4 +56,15 @@ echo $fileContent | Sort-Object
 
 
 
+# string methods
+# foreach ($line in $content) {
+#     $line.ToUpper()            # Convert to uppercase
+#     $line.ToLower()            # Convert to lowercase
+#     $line.Trim()               # Remove leading/trailing spaces
+#     $line.Contains("error")    # Check if line contains a word
+#     $line.Replace("foo","bar") # Replace word
+#     $line.StartsWith("INFO")   # Check start
+#     $line.EndsWith(".log")     # Check end
+#     $line.Split(" ")           # Split line into words
+# }
 
